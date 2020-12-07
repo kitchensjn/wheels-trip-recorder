@@ -157,7 +157,7 @@
 				}
 				
 				function error(err) {
-					console.log("Geolocation Unavailable!");
+					console.error("Geolocation Unavailable!");
 				}
 			}
 			
@@ -170,6 +170,8 @@
 							document.getElementById("gamma").innerHTML = event.gamma.toFixed(0);
 						})
 					}
+				}).catch(err => {
+					console.error("Orientation Unavailable!");
 				})
 			}
 			
@@ -182,6 +184,8 @@
 							document.getElementById("accelZ").innerHTML = event.acceleration.z.toFixed(1);
 						})
 					}
+				}).catch(err => {
+					console.error("Motion Unavailable!");
 				})
 			}
 			
