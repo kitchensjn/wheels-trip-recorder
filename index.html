@@ -52,10 +52,6 @@
 					<h2 id="altaccuracy">0</h2>
 				</div>
 				<div>
-					<h2>Record: </h2>
-					<h2 id="record">""</h2>
-				</div>
-				<div>
 					<h1>Gyroscope</h1>
 				</div>
 				<div>
@@ -152,7 +148,6 @@
 					document.getElementById("llaccuracy").innerHTML = position.coords.accuracy.toFixed(0);
 					document.getElementById("alt").innerHTML = position.coords.altitude.toFixed(0);
 					document.getElementById("altaccuracy").innerHTML = position.coords.altitudeAccuracy.toFixed(0);
-					document.getElementById("record").innerHTML = record;
 					if (record == 1) {
 						addToArray();	
 					}
