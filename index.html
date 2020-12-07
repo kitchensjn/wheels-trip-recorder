@@ -107,11 +107,8 @@
 			
 			function enableSensors () {
 				enableLocation();
-				console.log("Success 1");
 				enableOrientation();
-				console.log("Success 2");
 				enableMotion();
-				console.log("Success 3");
 				document.getElementById("intro").style.display = "none";
 			}
 			
@@ -152,6 +149,7 @@
 					document.getElementById("alt").innerHTML = position.coords.altitude.toFixed(0);
 					document.getElementById("altaccuracy").innerHTML = position.coords.altitudeAccuracy.toFixed(0);
 					if (record == 1) {
+						console.log("yes!");
 						addToArray();	
 					}
 				}
