@@ -162,31 +162,35 @@
 			}
 			
 			function enableOrientation () {
-				DeviceOrientationEvent.requestPermission().then(response => {
-					if (response == "granted") {
-						window.addEventListener("deviceorientation", (event) => {
-							document.getElementById("alpha").innerHTML = event.alpha.toFixed(0);
-							document.getElementById("beta").innerHTML = event.beta.toFixed(0);
-							document.getElementById("gamma").innerHTML = event.gamma.toFixed(0);
-						})
-					}
-				}).catch(err => {
+				if (typeof DeviceOrientationEvent.requestPermission !== "undefined") {
+					DeviceOrientationEvent.requestPermission().then(response => {
+						if (response == "granted") {
+							window.addEventListener("deviceorientation", (event) => {
+								document.getElementById("alpha").innerHTML = event.alpha.toFixed(0);
+								document.getElementById("beta").innerHTML = event.beta.toFixed(0);
+								document.getElementById("gamma").innerHTML = event.gamma.toFixed(0);
+							})
+						}
+					})
+				} else {
 					console.error("Orientation Unavailable!");
-				})
+				}
 			}
 			
 			function enableMotion () {
-				DeviceMotionEvent.requestPermission().then(response => {
-					if (response == "granted") {
-						window.addEventListener("devicemotion", (event) => {
-							document.getElementById("accelX").innerHTML = event.acceleration.x.toFixed(1);
-							document.getElementById("accelY").innerHTML = event.acceleration.y.toFixed(1);
-							document.getElementById("accelZ").innerHTML = event.acceleration.z.toFixed(1);
-						})
-					}
-				}).catch(err => {
+				if (typeof DeviceMotionEvent.requestPermission !== "undefined") {
+					DeviceMotionEvent.requestPermission().then(response => {
+						if (response == "granted") {
+							window.addEventListener("devicemotion", (event) => {
+								document.getElementById("accelX").innerHTML = event.acceleration.x.toFixed(1);
+								document.getElementById("accelY").innerHTML = event.acceleration.y.toFixed(1);
+								document.getElementById("accelZ").innerHTML = event.acceleration.z.toFixed(1);
+							})
+						}
+					})
+				} else {
 					console.error("Motion Unavailable!");
-				})
+				}
 			}
 			
 			
