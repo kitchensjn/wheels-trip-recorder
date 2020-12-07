@@ -160,7 +160,7 @@
 			}
 			
 			function enableOrientation () {
-				if (typeof DeviceOrientationEvent !== "undefined") {
+				if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission() !== "undefined") {
 					DeviceOrientationEvent.requestPermission().then(response => {
 						if (response == "granted") {
 							window.addEventListener("deviceorientation", (event) => {
@@ -176,7 +176,7 @@
 			}
 			
 			function enableMotion () {
-				if (typeof DeviceMotionEvent !== "undefined") {
+				if (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission() !== "undefined") {
 					DeviceMotionEvent.requestPermission().then(response => {
 						if (response == "granted") {
 							window.addEventListener("devicemotion", (event) => {
