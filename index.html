@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="theme-color" content="#FF8C00">
+		<title>Wheels: Trip Recorder</title>
+		<link rel="stylesheet" href="src/master.css">
+		<link rel="manifest" href="manifest.json">
+		<link rel="apple-touch-icon" href="images/wheel192.png">
+	</head>
+	
+	<body>
+		<div class="intro" id="intro">
+			<div class="container">
+				<h1 class="title">Wheels: Trip Recorder</h1>
+				<input type="button" value="Enter Site" onclick=enableSensors()>
+			</div>
+		</div>
+		<div class="main">
+			<div class="measurements">
+				<div>
+					<h1>GPS</h1>
+				</div>
+				<div>
+					<h2>Time: </h2>
+					<h2 id="time">0</h2>
+				</div>
+				<div>
+					<h2>Speed: </h2>
+					<h2 id="speed">0</h2>
+				</div>
+				<div>
+					<h2>Lat: </h2>
+					<h2 id="lat">0</h2>
+				</div>
+				<div>
+					<h2>Lon: </h2>
+					<h2 id="lon">0</h2>
+				</div>
+				<div>
+					<h2>Lat/Lon Accuracy: </h2>
+					<h2 id="llaccuracy">0</h2>
+				</div>
+				<div>
+					<h2>Altitude: </h2>
+					<h2 id="alt">0</h2>
+				</div>
+				<div>
+					<h2>Altitude Accuracy: </h2>
+					<h2 id="altaccuracy">0</h2>
+				</div>
+				<div>
+					<h1>Gyroscope</h1>
+				</div>
+				<div>
+					<h2>Alpha: </h2>
+					<h2 id="alpha">0</h2>
+				</div>
+				<div>
+					<h2>Beta: </h2>
+					<h2 id="beta">0</h2>
+				</div>
+				<div>
+					<h2>Gamma: </h2>
+					<h2 id="gamma">0</h2>
+				</div>
+				<div>
+					<h1>Accelerometer</h1>
+				</div>
+				<div>
+					<h2>X: </h2>
+					<h2 id="accelX">0</h2>
+				</div>
+				<div>
+					<h2>Y: </h2>
+					<h2 id="accelY">0</h2>
+				</div>
+				<div>
+					<h2>Z: </h2>
+					<h2 id="accelZ">0</h2>
+				</div>
+			</div>
+			<div class="recordButton">
+				<input id="record" type="button" value="Start Recording" onclick=recording()>
+			</div>
+		</div>
+		
+		<script>
+			var timeseries = [["time", "speed", "lat", "lon", "llaccuracy", "alt", "altaccuracy", "alpha", "beta", "gamma", "accelX", "accelY", "accelZ"]];
+			
+			var record = 0;
+			
+			function recording() {
+				if (record == 0) {
+					timeseries = [["time", "speed", "lat", "lon", "llaccuracy", "alt", "altaccuracy", "alpha", "beta", "gamma", "accelX", "accelY", "accelZ"]];
+					record = 1;
+					document.getElementById("record").value = "Stop Recording and Save";
+				} else if (record == 1) {
+					record = 0;
+					exportToCsv();
+					document.getElementById("record").value = "Start Recording";
+				}
+				
+			}
+			
+			function enableSensors () {
+				enableLocation();
+				enableOrientation();
+				enableMotion();
+				document.getElementById("intro").style.display = "none";
+			}
+			
+			function addToArray () {
+				timeseries.push([
+					document.getElementById("time").innerHTML,
+					document.getElementById("speed").innerHTML,
+					document.getElementById("lat").innerHTML,
+					document.getElementById("lon").innerHTML,
+					document.getElementById("llaccuracy").innerHTML,
+					document.getElementById("alt").innerHTML,
+					document.getElementById("altaccuracy").innerHTML,
+					document.getElementById("alpha").innerHTML,
+					document.getElementById("beta").innerHTML,
+					document.getElementById("gamma").innerHTML,
+					document.getElementById("accelX").innerHTML,
+					document.getElementById("accelY").innerHTML,
+					document.getElementById("accelZ").innerHTML
+				])
+			}
+			
+			function enableLocation () {
+				if (navigator.geolocation) {
+					var options = {
+						enableHighAccuracy: true,
+						timeout: 5000,
+						maximumAge: 0
+					};
+					navigator.geolocation.watchPosition(success, error, options);
+				}
+
+				function success(position) {
+					document.getElementById("time").innerHTML = position.timestamp;
+					document.getElementById("speed").innerHTML = position.coords.speed.toFixed(1);
+					document.getElementById("lat").innerHTML = position.coords.latitude;
+					document.getElementById("lon").innerHTML = position.coords.longitude;
+					document.getElementById("llaccuracy").innerHTML = position.coords.accuracy.toFixed(0);
+					document.getElementById("alt").innerHTML = position.coords.altitude.toFixed(0);
+					document.getElementById("altaccuracy").innerHTML = position.coords.altitudeAccuracy.toFixed(0);
+					if (record == 1) {
+						addToArray();	
+					}
+				}
+				
+				function error(err) {
+					console.log("Geolocation Unavailable!");
+				}
+			}
+			
+			function enableOrientation () {
+				DeviceOrientationEvent.requestPermission().then(response => {
+					if (response == "granted") {
+						window.addEventListener("deviceorientation", (event) => {
+							document.getElementById("alpha").innerHTML = event.alpha.toFixed(0);
+							document.getElementById("beta").innerHTML = event.beta.toFixed(0);
+							document.getElementById("gamma").innerHTML = event.gamma.toFixed(0);
+						})
+					}
+				})
+			}
+			
+			function enableMotion () {
+				DeviceMotionEvent.requestPermission().then(response => {
+					if (response == "granted") {
+						window.addEventListener("devicemotion", (event) => {
+							document.getElementById("accelX").innerHTML = event.acceleration.x.toFixed(1);
+							document.getElementById("accelY").innerHTML = event.acceleration.y.toFixed(1);
+							document.getElementById("accelZ").innerHTML = event.acceleration.z.toFixed(1);
+						})
+					}
+				})
+			}
+			
+			
+			function exportToCsv(filename="test.csv", rows=timeseries) {
+				var processRow = function (row) {
+					var finalVal = '';
+					for (var j = 0; j < row.length; j++) {
+						var innerValue = row[j] === null ? '' : row[j].toString();
+						if (row[j] instanceof Date) {
+							innerValue = row[j].toLocaleString();
+						};
+						var result = innerValue.replace(/"/g, '""');
+						if (result.search(/("|,|\n)/g) >= 0)
+							result = '"' + result + '"';
+						if (j > 0)
+							finalVal += ',';
+						finalVal += result;
+					}
+					return finalVal + '\n';
+				};
+
+				var csvFile = '';
+				for (var i = 0; i < rows.length; i++) {
+					csvFile += processRow(rows[i]);
+				}
+
+				var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
+				if (navigator.msSaveBlob) { // IE 10+
+					navigator.msSaveBlob(blob, filename);
+				} else {
+					var link = document.createElement("a");
+					if (link.download !== undefined) { // feature detection
+						// Browsers that support HTML5 download attribute
+						var url = URL.createObjectURL(blob);
+						link.setAttribute("href", url);
+						link.setAttribute("download", filename);
+						link.style.visibility = 'hidden';
+						document.body.appendChild(link);
+						link.click();
+						document.body.removeChild(link);
+					}
+				}
+			}
+		</script>
+		<!--<script src="src/index.js"></script>-->
+	</body>
+
+</html>
